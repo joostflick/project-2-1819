@@ -1,11 +1,26 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <title><%= title %></title>
+    <title>Home</title>
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
-    <p>Welcome to <%= title %></p>
+    <h1>All rooms</h1>
+    <div class='rooms'>
+    <% data.forEach(function(room){%>
+    <div class='room'>
+    <h2> <%= room.roomName %> </h2>
+    <h3>Points: <%= room.points %>
+    <h3>Temperature: <%= room.measurements.temperature %> degrees Celsius </h3>
+    <h3>Sound: <%= room.measurements.sound %> dB</h3>
+    <h3>Last updated: <%= room.timestamp.time %> on <%= room.timestamp.date %> </h3>
+    <% if(!room.measurements.occupancy){%>
+    <h3 class='available'>This room is available!</h3>
+    <% } else { %>
+    <h3 class='unavailable'>This room is currently unavailable.</h3>
+    <% } %>
+    </div>
+    <% }) %>
+    </div>
   </body>
 </html>
