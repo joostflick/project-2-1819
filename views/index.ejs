@@ -5,11 +5,12 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1><%= title %></h1>
+    <h1 id="title">Room Ratings</h1>
+    <h2 id="status"><%= title %></h2>
     <div class="menu">
     <a href="/">Show all rooms</a>
-    <a href="/available">Show available rooms</a>
-    <a href="/unavailable">Show unavailable rooms</a>
+    <a href="/available">Show available</a>
+    <a href="/unavailable">Show unavailable</a>
     </div>
     <div class='rooms'>
     <% data.forEach(function(room){%>

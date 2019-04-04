@@ -3,6 +3,28 @@ body {
   font: 14px 'Lucida Grande', Helvetica, Arial, sans-serif;
 }
 
+#title {
+  margin-top: 0;
+  color: white;
+  font-size: 3em;
+  text-align: center;
+}
+
+.menu {
+  display: flex;
+  justify-content: space-around;
+}
+
+.menu > a {
+  margin: 10px;
+  color: white;
+}
+
+#status {
+  color: white;
+  text-align: center;
+}
+
 a {
   color: #00b7ff;
 }
@@ -22,15 +44,14 @@ a {
   padding: 10px;
   border-radius: 10px;
   margin: 10px;
-  background: linear-gradient(
-    to bottom,
-    red 0%,
-    white 20%
-  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
 }
 
 .rooms {
   display: -ms-grid;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+}
+
+body {
+  background-color: rgba(0, 0, 0, 0.9);
 }
