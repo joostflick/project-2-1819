@@ -32,6 +32,7 @@ app.get('/', function(req, res, next) {
         sensorId: room.hwaddr,
         roomName: room.room_name,
         points: calculatePoints(room),
+        color: perc2color(calculatePoints(room)),
         measurements: {
           bap: room.measurements.bapLevel,
           temperature: Math.round(room.measurements.temperature / 1000),
@@ -52,28 +53,236 @@ app.get('/', function(req, res, next) {
         return y.points - x.points
       })
 
-      res.render('index', { data: parsedData })
+      // move available rooms to the front
+      // parsedData.sort(function(x, y) {
+      //   return x.measurements.occupancy - y.measurements.occupancy
+      // })
+
+      res.render('index', { data: parsedData, title: 'All rooms' })
     }
   )
 })
 
+app.get('/available', function(req, res, next) {
+  request(
+    'http://mirabeau.denniswegereef.nl/api/v1/rooms',
+    (error, response, body) => {
+      if (error) {
+        console.log('error:', error)
+      }
+      console.log('response code:', response.statusCode)
+
+      let data = JSON.parse(body)
+
+      available = data.data.filter(function(obj) {
+        return !obj.measurements.occupancy
+      })
+
+      let parsedData = available.map(room => ({
+        timestamp: convertTimestamp(room.timestamp),
+        sensorId: room.hwaddr,
+        roomName: room.room_name,
+        points: calculatePoints(room),
+        color: perc2color(calculatePoints(room)),
+        measurements: {
+          bap: room.measurements.bapLevel,
+          temperature: Math.round(room.measurements.temperature / 1000),
+          battery: room.measurements.batt,
+          sound: Math.round(room.measurements.mic_level / 100),
+          light: room.measurements.ambient_light,
+          humidity: room.measurements.humidity,
+          co2: room.measurements.co2,
+          occupancy: room.measurements.occupancy,
+          uv: room.measurements.uv_index,
+          voc: room.measurements.voc
+        }
+      }))
+
+      // order rooms based on score
+      parsedData.sort(function(x, y) {
+        return y.points - x.points
+      })
+
+      res.render('index', { data: parsedData, title: 'Available rooms' })
+    }
+  )
+})
+
+app.get('/unavailable', function(req, res, next) {
+  request(
+    'http://mirabeau.denniswegereef.nl/api/v1/rooms',
+    (error, response, body) => {
+      if (error) {
+        console.log('error:', error)
+      }
+      console.log('response code:', response.statusCode)
+
+      let data = JSON.parse(body)
+
+      available = data.data.filter(function(obj) {
+        return obj.measurements.occupancy
+      })
+
+      let parsedData = available.map(room => ({
+        timestamp: convertTimestamp(room.timestamp),
+        sensorId: room.hwaddr,
+        roomName: room.room_name,
+        points: calculatePoints(room),
+        color: perc2color(calculatePoints(room)),
+        measurements: {
+          bap: room.measurements.bapLevel,
+          temperature: Math.round(room.measurements.temperature / 1000),
+          battery: room.measurements.batt,
+          sound: Math.round(room.measurements.mic_level / 100),
+          light: room.measurements.ambient_light,
+          humidity: room.measurements.humidity,
+          co2: room.measurements.co2,
+          occupancy: room.measurements.occupancy,
+          uv: room.measurements.uv_index,
+          voc: room.measurements.voc
+        }
+      }))
+
+      // order rooms based on score
+      parsedData.sort(function(x, y) {
+        return y.points - x.points
+      })
+
+      res.render('index', { data: parsedData, title: 'Unavailable rooms' })
+    }
+  )
+})
+
+// calculate percentage range
+function mapBetween(currentNum, minAllowed, maxAllowed, min, max) {
+  return (
+    ((maxAllowed - minAllowed) * (currentNum - min)) / (max - min) + minAllowed
+  )
+}
+
+// force bigger scale
+function calculateNewPercentage(value) {
+  if (value < 50) {
+    value = 50
+  } else if (value > 90) {
+    value = 90
+  }
+  return mapBetween(value, 0, 100, 50, 90)
+}
+
+function perc2color(value) {
+  var perc = calculateNewPercentage(value)
+  var r,
+    g,
+    b = 0
+  if (perc < 50) {
+    r = 255
+    g = Math.round(5.1 * perc)
+  } else {
+    g = 255
+    r = Math.round(510 - 5.1 * perc)
+  }
+  var h = r * 0x10000 + g * 0x100 + b * 0x1
+  return '#' + ('000000' + h.toString(16)).slice(-6)
+}
+
 function calculatePoints(room) {
   var points = 0
   console.log(room)
-  // availability
-  if (!room.measurements.occupancy) {
-    points = points + 1000
-  }
   // temperature
-  points = points + (20000 - room.measurements.temperature) / 100
-  // co2
-  if (room.measurements.co2 > 600) {
-    points = points - 100
+  var idealTemp = 20
+  switch (
+    difference(Math.round(room.measurements.temperature / 1000), idealTemp)
+  ) {
+    case 0:
+      points += 25
+      break
+    case 1:
+      points += 20
+      break
+    case 2:
+      points += 15
+      break
+    case 3:
+      points += 10
+      break
+    case 4:
+      points += 5
+      break
+    default:
+      points += 0
   }
+  // co2
+  var co2 = room.measurements.co2
+  switch (true) {
+    case co2 < 400:
+      points += 25
+      break
+    case 400 <= co2 < 700:
+      points += 20
+      break
+    case 700 <= co2 < 900:
+      points += 15
+      break
+    case 900 <= co2 < 1000:
+      points += 10
+      break
+    case 1000 <= co2 < 1100:
+      points += 5
+      break
+    default:
+      points += 0
+  }
+
   // sound
-  points = points - room.measurements.mic_level / 100
+  var db = Math.round(room.measurements.mic_level / 100)
+  switch (true) {
+    case db < 10:
+      points += 25
+      break
+    case 10 <= db < 15:
+      points += 20
+      break
+    case 15 <= db < 20:
+      points += 15
+      break
+    case 20 <= db < 25:
+      points += 10
+      break
+    case 25 <= db < 35:
+      points += 5
+      break
+    default:
+      points += 0
+  }
+
+  // voc
+  var voc = room.measurements.voc
+  switch (true) {
+    case voc < 1000:
+      points += 25
+      break
+    case 1000 <= voc < 3000:
+      points += 20
+      break
+    case 3000 <= voc < 5000:
+      points += 15
+      break
+    case 5000 <= voc < 7000:
+      points += 10
+      break
+    case 7000 <= voc < 10000:
+      points += 5
+      break
+    default:
+      points += 0
+  }
 
   return points
+}
+
+function difference(a, b) {
+  return Math.abs(a - b)
 }
 
 function convertTimestamp(unix_timestamp) {

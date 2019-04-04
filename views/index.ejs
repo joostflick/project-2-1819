@@ -5,15 +5,26 @@
     <link rel='stylesheet' href='/stylesheets/style.css' />
   </head>
   <body>
-    <h1>All rooms</h1>
+    <h1><%= title %></h1>
+    <div class="menu">
+    <a href="/">Show all rooms</a>
+    <a href="/available">Show available rooms</a>
+    <a href="/unavailable">Show unavailable rooms</a>
+    </div>
     <div class='rooms'>
     <% data.forEach(function(room){%>
-    <div class='room'>
+    <div class='room' style=' background: linear-gradient(
+      to bottom,
+      <%= room.color %> 0%,
+      white 20%
+    );'>
     <h2> <%= room.roomName %> </h2>
-    <h3>Points: <%= room.points %>
+    <h3>Score: <%= room.points %>/100 </h3>
     <h3>Temperature: <%= room.measurements.temperature %> degrees Celsius </h3>
     <h3>Sound: <%= room.measurements.sound %> dB</h3>
-    <h3>Last updated: <%= room.timestamp.time %> on <%= room.timestamp.date %> </h3>
+    <h3>VOC: <%= room.measurements.voc %></h3>
+    <h3>co2: <%= room.measurements.co2 %></h3>
+    <h3>Last updated: <%= room.timestamp.time %> </h3>
     <% if(!room.measurements.occupancy){%>
     <h3 class='available'>This room is available!</h3>
     <% } else { %>
@@ -23,4 +34,5 @@
     <% }) %>
     </div>
   </body>
+
 </html>

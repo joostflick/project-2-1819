@@ -15,7 +15,22 @@ a {
   color: red;
 }
 
+.room {
+  color: black;
+  border: 1px;
+  border-style: solid;
+  padding: 10px;
+  border-radius: 10px;
+  margin: 10px;
+  background: linear-gradient(
+    to bottom,
+    red 0%,
+    white 20%
+  ); /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
+}
+
 .rooms {
+  display: -ms-grid;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
 }
