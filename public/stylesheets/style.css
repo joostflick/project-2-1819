@@ -21,6 +21,11 @@ body {
 }
 
 #status {
+  color: lightgray;
+  text-align: center;
+}
+
+#subtitle {
   color: white;
   text-align: center;
 }

@@ -6,7 +6,8 @@
   </head>
   <body>
     <h1 id="title">Room Ratings</h1>
-    <h2 id="status"><%= title %></h2>
+    <h2 id="subtitle"><%= title %></h2>
+    <h3 id="status"></h3>
     <div class="menu">
     <a href="/">Show all rooms</a>
     <a href="/available">Show available</a>
@@ -23,8 +24,8 @@
     <h3>Score: <%= room.points %>/100 </h3>
     <h3>Temperature: <%= room.measurements.temperature %> degrees Celsius </h3>
     <h3>Sound: <%= room.measurements.sound %> dB</h3>
-    <h3>VOC: <%= room.measurements.voc %></h3>
-    <h3>co2: <%= room.measurements.co2 %></h3>
+    <h3>VOC: <%= room.measurements.voc %> ppm</h3>
+    <h3>co2: <%= room.measurements.co2 %> ppm</h3>
     <h3>Last updated: <%= room.timestamp.time %> </h3>
     <% if(!room.measurements.occupancy){%>
     <h3 class='available'>This room is available!</h3>
@@ -35,5 +36,6 @@
     <% }) %>
     </div>
   </body>
+  <script src='../javascripts/index.js'></script>
 
 </html>
