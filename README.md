@@ -54,3 +54,7 @@ This score is reflected by a gradient (I know) over the title of the room. Green
 The rooms are also ordered by score, the best one first and the worst one last.
 
 The user can interact with the application by pressing one of the 3 buttons on top to switch between views; Either all rooms are visible, only the available rooms are visible or the unavailable rooms are visible.
+
+The app also notifies the user whether they are online/offline because if there is no internet connection the data will not be refreshed.
+
+The data is updated every 3 seconds if the user is online.
